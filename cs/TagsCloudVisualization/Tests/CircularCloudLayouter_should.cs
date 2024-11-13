@@ -11,20 +11,42 @@ namespace TagsCloudVisualization.Tests
         private CircularCloudLayouter layouter = null!;
         private Size[] rectangleSizes = Array.Empty<Size>();
         private Point center;
+        private int maxDistanceToCenter;
+        private string imagesDirectory = "";
 
         [SetUp]
         public void SetUp()
         {
-            center = new Point(0, 0);
+            center = new Point(650, 450);
             layouter = new CircularCloudLayouter(center);
             rectangleSizes = new[]
             {
-                new Size(10, 10),
-                new Size(20, 20),
-                new Size(30, 10),
-                new Size(15, 25),
-                new Size(10, 10)
+                new Size(70, 100),
+                new Size(60, 60),
+                new Size(90, 30),
+                new Size(75, 115),
+                new Size(100, 100)
             };
+            maxDistanceToCenter = 120;
+            var projectDirectory = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName
+                    ?? throw new InvalidOperationException("Не удалось определить директорию проекта.");
+            imagesDirectory = Path.Combine(projectDirectory, "Images");
+            if (!Directory.Exists(imagesDirectory))
+            {
+                Directory.CreateDirectory(imagesDirectory);
+            }
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (TestContext.CurrentContext.Result.Outcome.Status == NUnit.Framework.Interfaces.TestStatus.Failed)
+            {
+                var testName = TestContext.CurrentContext.Test.Name;
+                var filePath = Path.Combine(imagesDirectory, $"{testName}_failed.png");
+                layouter.SaveVisualization(filePath);
+                Console.WriteLine($"Tag cloud visualization saved to file {filePath}");
+            }
         }
 
         [Test]
@@ -67,7 +89,7 @@ namespace TagsCloudVisualization.Tests
         public void PutNextRectangle_ShouldPlaceRectangleInCenter_WhenFirstRectangle()
         {
             var rectangleSize = new Size(10, 10);
-            var expectedLocation = new Point(-rectangleSize.Width / 2, -rectangleSize.Height / 2);
+            var expectedLocation = new Point(center.X - rectangleSize.Width / 2, center.Y - rectangleSize.Height / 2);
             var rectangle = layouter.PutNextRectangle(rectangleSize);
             
             rectangle.Location.Should().BeEquivalentTo(expectedLocation);
@@ -121,9 +143,23 @@ namespace TagsCloudVisualization.Tests
             {
                 var distanceToCenter = Math.Sqrt(Math.Pow(rectangle.X + rectangle.Width / 2 - center.X, 2) +
                                                   Math.Pow(rectangle.Y + rectangle.Height / 2 - center.Y, 2));
-                distanceToCenter.Should().BeLessThan(20);
+                distanceToCenter.Should().BeLessThan(maxDistanceToCenter);
             }
         }
+
+        /*
+        [Test]
+        public void Test_ShouldBeFailed_AnyWay()
+        {
+            foreach (var size in rectangleSizes)
+            {
+                layouter.PutNextRectangle(size);
+            }
+            
+            var a = 0;
+            a.Should().Be(5);
+        }
+        */
 
         private void VerifyRectanglesDontIntersect(List<Rectangle> rectangles)
         {

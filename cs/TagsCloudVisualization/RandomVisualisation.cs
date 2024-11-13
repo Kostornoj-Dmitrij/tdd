@@ -10,7 +10,7 @@ namespace TagsCloudVisualization
             var projectDirectory = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName
                     ?? throw new InvalidOperationException("Не удалось определить директорию проекта.");
             var imagesDirectory = Path.Combine(projectDirectory, "Images");
-            Console.WriteLine(imagesDirectory);
+
             if (!Directory.Exists(imagesDirectory))
             {
                 Directory.CreateDirectory(imagesDirectory);
