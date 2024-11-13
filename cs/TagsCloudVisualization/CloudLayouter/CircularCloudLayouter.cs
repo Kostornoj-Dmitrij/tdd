@@ -40,6 +40,27 @@ namespace TagsCloudVisualization.CloudLayouter
             return newRectangle;
         }
 
+        public void SaveVisualization(string filePath)
+        {
+            int width = 1200;
+            int height = 900;
+            using (var bitmap = new Bitmap(width, height))
+            {
+                using (var graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.Clear(Color.White);
+                    foreach (var rectangle in Rectangles)
+                    {
+
+                        graphics.FillRectangle(Brushes.CornflowerBlue, rectangle);
+
+                        graphics.DrawRectangle(Pens.Black, rectangle);
+                    }
+                }
+                bitmap.Save(filePath);
+            }
+        }
+
         private Point GetNextPointOnSpiral()
         {
             var x = (int)(Center.X + Angle * Math.Cos(Angle));

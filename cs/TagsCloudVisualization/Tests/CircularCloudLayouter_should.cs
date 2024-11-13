@@ -8,22 +8,23 @@ namespace TagsCloudVisualization.Tests
     [TestFixture]
     public class CircularCloudLayouter_should
     {
-        private CircularCloudLayouter layouter;
+        private CircularCloudLayouter layouter = null!;
+        private Size[] rectangleSizes = Array.Empty<Size>();
         private Point center;
-        private Size[] rectangleSizes = new[]
-        {
-            new Size(10, 10),
-            new Size(20, 20),
-            new Size(30, 10),
-            new Size(15, 25),
-            new Size(10, 10)
-        };
 
         [SetUp]
         public void SetUp()
         {
             center = new Point(0, 0);
             layouter = new CircularCloudLayouter(center);
+            rectangleSizes = new[]
+            {
+                new Size(10, 10),
+                new Size(20, 20),
+                new Size(30, 10),
+                new Size(15, 25),
+                new Size(10, 10)
+            };
         }
 
         [Test]
@@ -79,16 +80,7 @@ namespace TagsCloudVisualization.Tests
             {
                 layouter.PutNextRectangle(size);
             }
-
-            var rectangles = layouter.Rectangles.ToList();
-
-            for (int i = 0; i < rectangles.Count; i++)
-            {
-                for (int j = i + 1; j < rectangles.Count; j++)
-                {
-                    rectangles[i].IntersectsWith(rectangles[j]).Should().BeFalse();
-                }
-            }
+            VerifyRectanglesDontIntersect(layouter.Rectangles.ToList());
         }
 
         [Test]
@@ -101,16 +93,7 @@ namespace TagsCloudVisualization.Tests
             {
                 layouter.PutNextRectangle(rectangleSize);
             }
-
-            var rectangles = layouter.Rectangles.ToList();
-
-            for (int i = 0; i < rectangles.Count; i++)
-            {
-                for (int j = i + 1; j < rectangles.Count; j++)
-                {
-                    rectangles[i].IntersectsWith(rectangles[j]).Should().BeFalse();
-                }
-            }
+            VerifyRectanglesDontIntersect(layouter.Rectangles.ToList());
         }
 
         [Test]
@@ -139,6 +122,17 @@ namespace TagsCloudVisualization.Tests
                 var distanceToCenter = Math.Sqrt(Math.Pow(rectangle.X + rectangle.Width / 2 - center.X, 2) +
                                                   Math.Pow(rectangle.Y + rectangle.Height / 2 - center.Y, 2));
                 distanceToCenter.Should().BeLessThan(20);
+            }
+        }
+
+        private void VerifyRectanglesDontIntersect(List<Rectangle> rectangles)
+        {
+            for (int i = 0; i < rectangles.Count; i++)
+            {
+                for (int j = i + 1; j < rectangles.Count; j++)
+                {
+                    rectangles[i].IntersectsWith(rectangles[j]).Should().BeFalse();
+                }
             }
         }
     }
