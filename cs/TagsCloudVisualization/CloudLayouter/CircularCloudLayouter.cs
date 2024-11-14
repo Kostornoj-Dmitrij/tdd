@@ -42,6 +42,10 @@ namespace TagsCloudVisualization.CloudLayouter
 
         public void SaveVisualization(string filePath)
         {
+            var directory = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directory))
+                throw new DirectoryNotFoundException("The directory does not exist.");
+            
             int width = 1200;
             int height = 900;
             using (var bitmap = new Bitmap(width, height))

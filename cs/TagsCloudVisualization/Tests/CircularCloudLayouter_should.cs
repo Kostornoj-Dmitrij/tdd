@@ -17,7 +17,7 @@ namespace TagsCloudVisualization.Tests
         [SetUp]
         public void SetUp()
         {
-            center = new Point(650, 450);
+            center = new Point(600, 450);
             layouter = new CircularCloudLayouter(center);
             rectangleSizes = new[]
             {
@@ -146,8 +146,42 @@ namespace TagsCloudVisualization.Tests
                 distanceToCenter.Should().BeLessThan(maxDistanceToCenter);
             }
         }
+        
+        [Test]
+        public void SaveVisualization_ShouldCreateImageFile()
+        {
+            var filePath = Path.Combine(imagesDirectory, "test_visualization.png");
+            layouter.SaveVisualization(filePath);
 
-        /*
+            File.Exists(filePath).Should().BeTrue();
+            File.Delete(filePath);
+        }
+
+        [Test]
+        public void SaveVisualization_ShouldCreateImageWithExpectedSize()
+        {
+            var filePath = Path.Combine(imagesDirectory, "test_visualization.png");
+            layouter.SaveVisualization(filePath);
+
+            using (var bitmap = new Bitmap(filePath))
+            {
+                bitmap.Width.Should().Be(center.X * 2);
+                bitmap.Height.Should().Be(center.Y * 2);
+            }
+            File.Delete(filePath);
+        }
+
+        [Test]
+        public void SaveVisualization_ShouldThrowDirectoryNotFoundException_WhenInvalidPath()
+        {
+            var ivalidPath = @"M:\NonExistingDirectory\test_visualisation.png";
+            var func = () => layouter.SaveVisualization(ivalidPath);
+
+            func.Should().Throw<DirectoryNotFoundException>();
+
+        }
+
+        /* Тест для проверки 3 части задания
         [Test]
         public void Test_ShouldBeFailed_AnyWay()
         {
