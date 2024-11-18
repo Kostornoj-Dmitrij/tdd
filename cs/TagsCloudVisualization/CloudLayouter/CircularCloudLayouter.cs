@@ -1,88 +1,75 @@
-﻿using System.Drawing;
+﻿using SixLabors.ImageSharp;
 using TagsCloudVisualization.Interfaces;
 
-namespace TagsCloudVisualization.CloudLayouter
+namespace TagsCloudVisualization.CloudLayouter;
+
+public class CircularCloudLayouter : ICloudLayouter
 {
-    public class CircularCloudLayouter : ICloudLayouter
+    private readonly PointF center;
+    private readonly SpiralPointGenerator spiral;
+    public List<RectangleF> Rectangles { get; }
+
+    public CircularCloudLayouter(PointF center)
     {
-        private readonly Point Center;
-        private List<Rectangle> rectangles;
-        private double angle;
-        private const double SpiralStep = 0.1;
-        public List<Rectangle> Rectangles => rectangles;
-        public double Angle => angle;
+        this.center = center;
 
-        public CircularCloudLayouter(Point center)
+        Rectangles = new List<RectangleF>();
+        spiral = new SpiralPointGenerator(center);
+    }
+
+    public RectangleF PutNextRectangle(SizeF rectangleSize)
+    {
+        if (rectangleSize.Width <= 0 || rectangleSize.Height <= 0)
+            throw new ArgumentException("Size should be positive value", nameof(rectangleSize));
+
+        RectangleF newRectangle;
+        do
         {
-            if (center.X < 0 || center.Y < 0)
-                throw new ArgumentException("Center point coordinates cannot be negative.", nameof(center));
+            var location = spiral.GetNextPoint();
+            var rectangleLocation = new PointF(location.X - rectangleSize.Width / 2,
+                location.Y - rectangleSize.Height / 2);
+            newRectangle = new RectangleF(rectangleLocation, rectangleSize);
             
-            Center = center;
-            rectangles = new List<Rectangle>();
-            angle = 0;
-        }
-
-        public Rectangle PutNextRectangle(Size rectangleSize)
-        {
-            if (rectangleSize.Width <= 0 || rectangleSize.Height <= 0)
-                throw new ArgumentException("Size should be positive value", nameof(rectangleSize));
-
-            Rectangle newRectangle;
-            do
+            if (!newRectangle.IntersectsWithAny(Rectangles))
             {
-                var location = GetNextPointOnSpiral();
-                var rectangleLocation = new Point(location.X - rectangleSize.Width / 2, 
-                                                location.Y - rectangleSize.Height / 2);
-                newRectangle = new Rectangle(rectangleLocation, rectangleSize);
-            } while (IsIntersects(newRectangle));
-
-            Rectangles.Add(newRectangle);
-            return newRectangle;
-        }
-
-        public void SaveVisualization(string filePath)
-        {
-            var directory = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directory))
-                throw new DirectoryNotFoundException("The directory does not exist.");
-            
-            int width = 1200;
-            int height = 900;
-            using (var bitmap = new Bitmap(width, height))
-            {
-                using (var graphics = Graphics.FromImage(bitmap))
-                {
-                    graphics.Clear(Color.White);
-                    foreach (var rectangle in Rectangles)
-                    {
-
-                        graphics.FillRectangle(Brushes.CornflowerBlue, rectangle);
-
-                        graphics.DrawRectangle(Pens.Black, rectangle);
-                    }
-                }
-                bitmap.Save(filePath);
+                ShiftRectanglesTowardsCenter();
             }
-        }
+        } while (newRectangle.IntersectsWithAny(Rectangles));
 
-        private Point GetNextPointOnSpiral()
-        {
-            var x = (int)(Center.X + Angle * Math.Cos(Angle));
-            var y = (int)(Center.Y + Angle * Math.Sin(Angle));
-            angle += SpiralStep;
-            return new Point(x, y);
-        }
+        Rectangles.Add(newRectangle);
+        return newRectangle;
+    }
 
-        private bool IsIntersects(Rectangle rectangle)
+    private void ShiftRectanglesTowardsCenter()
+    {
+        const float shiftFactor = 0.005f;
+        var moved = true;
+        while (moved)
         {
-            foreach (var existingrectangle in Rectangles)
+            moved = false;
+
+            for (int i = 0; i < Rectangles.Count; i++)
             {
-                if (existingrectangle.IntersectsWith(rectangle))
+                var rectangle = Rectangles[i];
+                var centerX = center.X;
+                var centerY = center.Y;
+                
+                var shiftX = (centerX - rectangle.X) * shiftFactor;
+                var newRectangleX = new RectangleF(rectangle.X + shiftX, rectangle.Y, rectangle.Width, rectangle.Height);
+                if (!newRectangleX.IntersectsWithAny(Rectangles))
                 {
-                    return true;
+                    rectangle.X += shiftX;
+                    moved = true;
+                }
+                
+                var shiftY = (centerY - rectangle.Y) * shiftFactor;
+                var newRectangleY = new RectangleF(rectangle.X, rectangle.Y + shiftY, rectangle.Width, rectangle.Height);
+                if (!newRectangleY.IntersectsWithAny(Rectangles))
+                {
+                    rectangle.Y += shiftY;
+                    moved = true;
                 }
             }
-            return false;
         }
     }
 }

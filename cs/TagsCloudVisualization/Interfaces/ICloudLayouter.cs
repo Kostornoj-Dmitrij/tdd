@@ -1,9 +1,8 @@
-﻿using System.Drawing;
+﻿using SixLabors.ImageSharp;
 
-namespace TagsCloudVisualization.Interfaces
+namespace TagsCloudVisualization.Interfaces;
+
+public interface ICloudLayouter
 {
-    public interface ICloudLayouter
-    {
-        public Rectangle PutNextRectangle(Size rectangleSize);
-    }
+    public RectangleF PutNextRectangle(SizeF rectangleSize);
 }
