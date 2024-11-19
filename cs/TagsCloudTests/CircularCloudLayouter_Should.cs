@@ -30,7 +30,7 @@ public class CircularCloudLayouter_Should : CircularCloudLayouterTestsBase
     {
         var rectangleSize = new SizeF(20, 30);
         var rectangle = Layouter.PutNextRectangle(rectangleSize);
-            
+
         rectangle.Size.Should().BeEquivalentTo(rectangleSize);
     }
 
@@ -40,7 +40,7 @@ public class CircularCloudLayouter_Should : CircularCloudLayouterTestsBase
         var rectangleSize = new SizeF(10, 10);
         var expectedLocation = new PointF(Center.X - rectangleSize.Width / 2, Center.Y - rectangleSize.Height / 2);
         var rectangle = Layouter.PutNextRectangle(rectangleSize);
-            
+
         rectangle.Location.Should().BeEquivalentTo(expectedLocation);
     }
 
@@ -95,7 +95,7 @@ public class CircularCloudLayouter_Should : CircularCloudLayouterTestsBase
             distanceToCenter.Should().BeLessThan(MaxDistanceToCenter);
         }
     }
-        
+
     private void VerifyRectanglesDontIntersect(List<RectangleF> rectangles)
     {
         for (int i = 0; i < rectangles.Count; i++)

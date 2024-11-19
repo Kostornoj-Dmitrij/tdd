@@ -13,7 +13,7 @@ public class CloudVisualizer_Should : CircularCloudLayouterTestsBase
         Layouter.PutNextRectangle(new SizeF(10, 10));
         var filePath = Path.Combine(ImagesDirectory, "test_visualization.png");
         Visualizer.SaveVisualization(Layouter.Rectangles, filePath);
-        
+
         using (var image = Image.Load<Rgba32>(filePath))
         {
             image.Width.Should().Be(1200);
@@ -25,14 +25,14 @@ public class CloudVisualizer_Should : CircularCloudLayouterTestsBase
     [Test]
     public void SaveVisualization_ShouldCreateImageWithBiggerSize_WhenManyRectangles()
     {
-        for(int i = 0; i < 10; i++)
+        for(int i = 0; i < 13; i++)
             Layouter.PutNextRectangle(new SizeF(300, 300));
-        
+
         var filePath = Path.Combine(ImagesDirectory, "test_visualization.png");
         Visualizer.SaveVisualization(Layouter.Rectangles, filePath);
-        
+
         using (var image = Image.Load<Rgba32>(filePath))
-        {
+        { 
             image.Width.Should().BeGreaterThan(1200);
             image.Height.Should().BeGreaterThan(900);
         }

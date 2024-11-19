@@ -15,7 +15,7 @@ public class CloudVisualizer
 
         var maxWidth = rectangles.Max(r => r.Right);
         var maxHeight = rectangles.Max(r => r.Bottom);
-        
+
         var width = (int)Math.Max(maxWidth, 1200);
         var height = (int)Math.Max(maxHeight, 900);
 

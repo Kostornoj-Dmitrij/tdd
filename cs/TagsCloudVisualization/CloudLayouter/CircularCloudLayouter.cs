@@ -6,15 +6,14 @@ namespace TagsCloudVisualization.CloudLayouter;
 public class CircularCloudLayouter : ICloudLayouter
 {
     private readonly PointF center;
-    private readonly SpiralPointGenerator spiral;
+    private readonly ArchimedeanSpiralPointGenerator spiral;
     public List<RectangleF> Rectangles { get; }
 
     public CircularCloudLayouter(PointF center)
     {
         this.center = center;
-
         Rectangles = new List<RectangleF>();
-        spiral = new SpiralPointGenerator(center);
+        spiral = new ArchimedeanSpiralPointGenerator(center);
     }
 
     public RectangleF PutNextRectangle(SizeF rectangleSize)
@@ -29,47 +28,49 @@ public class CircularCloudLayouter : ICloudLayouter
             var rectangleLocation = new PointF(location.X - rectangleSize.Width / 2,
                 location.Y - rectangleSize.Height / 2);
             newRectangle = new RectangleF(rectangleLocation, rectangleSize);
-            
-            if (!newRectangle.IntersectsWithAny(Rectangles))
-            {
-                ShiftRectanglesTowardsCenter();
-            }
+
+            newRectangle = ShiftRectangleTowardsCenter(newRectangle);
         } while (newRectangle.IntersectsWithAny(Rectangles));
 
         Rectangles.Add(newRectangle);
         return newRectangle;
     }
 
-    private void ShiftRectanglesTowardsCenter()
+    private RectangleF ShiftRectangleTowardsCenter(RectangleF rectangle)
     {
-        const float shiftFactor = 0.005f;
-        var moved = true;
-        while (moved)
-        {
-            moved = false;
+        if (Rectangles.Count == 0)
+            return rectangle;
 
-            for (int i = 0; i < Rectangles.Count; i++)
+        var shiftFactor = 0.001f;
+        var canShiftX = true;
+        var canShiftY = true;
+
+        while (canShiftX || canShiftY)
+        {
+            var centerShift = new PointF(center.X - rectangle.X, center.Y - rectangle.Y);
+
+            var shiftX = canShiftX ? centerShift.X * shiftFactor : 0;
+            var shiftY = canShiftY ? centerShift.Y * shiftFactor : 0;
+
+            var shiftedRectangle = new RectangleF(
+                rectangle.X + shiftX,
+                rectangle.Y + shiftY,
+                rectangle.Width,
+                rectangle.Height);
+
+            if (shiftedRectangle.IntersectsWithAny(Rectangles))
             {
-                var rectangle = Rectangles[i];
-                var centerX = center.X;
-                var centerY = center.Y;
-                
-                var shiftX = (centerX - rectangle.X) * shiftFactor;
-                var newRectangleX = new RectangleF(rectangle.X + shiftX, rectangle.Y, rectangle.Width, rectangle.Height);
-                if (!newRectangleX.IntersectsWithAny(Rectangles))
-                {
-                    rectangle.X += shiftX;
-                    moved = true;
-                }
-                
-                var shiftY = (centerY - rectangle.Y) * shiftFactor;
-                var newRectangleY = new RectangleF(rectangle.X, rectangle.Y + shiftY, rectangle.Width, rectangle.Height);
-                if (!newRectangleY.IntersectsWithAny(Rectangles))
-                {
-                    rectangle.Y += shiftY;
-                    moved = true;
-                }
+                if (canShiftX)
+                    canShiftX = false;
+                if (canShiftY)
+                    canShiftY = false;
+            }
+            else
+            {
+                rectangle = shiftedRectangle;
             }
         }
+
+        return rectangle;
     }
 }

@@ -4,7 +4,7 @@ using SixLabors.ImageSharp;
 
 namespace TagsCloudTests;
 
-public class SpiralPointGenerator_Should : CircularCloudLayouterTestsBase
+public class ArchimedeanSpiralPointGenerator_Should : CircularCloudLayouterTestsBase
 {
     [Test]
     public void GetNextPoint_ShouldReturnFirstPointAtCenter()

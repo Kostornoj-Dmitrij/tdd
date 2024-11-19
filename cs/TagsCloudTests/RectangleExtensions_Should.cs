@@ -17,9 +17,9 @@ public class RectangleExtensions_Should : CircularCloudLayouterTestsBase
             new RectangleF(30, 30, 50, 50),
             new RectangleF(200, 200, 50, 50)
         };
-        
+
         var result = rectangleToCheck.IntersectsWithAny(existingRectangles);
-        
+
         result.Should().BeTrue();
     }
 
@@ -32,9 +32,9 @@ public class RectangleExtensions_Should : CircularCloudLayouterTestsBase
             new RectangleF(200, 200, 50, 50),
             new RectangleF(300, 300, 50, 50)
         };
-        
+
         var result = rectangleToCheck.IntersectsWithAny(existingRectangles);
-        
+
         result.Should().BeFalse();
     }
 
@@ -43,7 +43,7 @@ public class RectangleExtensions_Should : CircularCloudLayouterTestsBase
     {
         var rectangleToCheck = new RectangleF(50, 50, 100, 100);
         var existingRectangles = new List<RectangleF>();
-        
+
         var result = rectangleToCheck.IntersectsWithAny(existingRectangles);
 
         result.Should().BeFalse();

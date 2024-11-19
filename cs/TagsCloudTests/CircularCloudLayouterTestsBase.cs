@@ -9,7 +9,7 @@ public abstract class CircularCloudLayouterTestsBase
 {
     protected CircularCloudLayouter Layouter;
     protected CloudVisualizer Visualizer;
-    protected SpiralPointGenerator Generator;
+    protected ArchimedeanSpiralPointGenerator Generator;
     protected SizeF[] RectangleSizes;
     protected PointF Center;
     protected int MaxDistanceToCenter;
@@ -29,7 +29,7 @@ public abstract class CircularCloudLayouterTestsBase
             new SizeF(75, 115),
             new SizeF(100, 100)
         ];
-        Generator = new SpiralPointGenerator(Center);
+        Generator = new ArchimedeanSpiralPointGenerator(Center);
         MaxDistanceToCenter = 120;
         var projectDirectory = Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName
                                ?? throw new InvalidOperationException("Не удалось определить директорию проекта.");
